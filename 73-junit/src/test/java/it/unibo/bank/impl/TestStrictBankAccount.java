@@ -5,13 +5,13 @@ import it.unibo.bank.api.BankAccount;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test class for the {@link StrictBankAccount} class.
  */
 class TestStrictBankAccount {
-
     // Create a new AccountHolder and a StrictBankAccount for it each time tests are executed.
     private AccountHolder mRossi;
     private BankAccount bankAccount;
@@ -21,7 +21,8 @@ class TestStrictBankAccount {
      */
     @BeforeEach
     public void setUp() {
-        fail("To be implemented");
+        this.mRossi = new AccountHolder("Mario", "Rossi", 1);
+        this.bankAccount = new StrictBankAccount(mRossi, 0.0);
     }
 
     /**
@@ -29,7 +30,9 @@ class TestStrictBankAccount {
      */
     @Test
     public void testInitialization() {
-        fail("To be implemented");
+        assertEquals(0.0, bankAccount.getBalance());
+        assertEquals(0, bankAccount.getTransactionsCount());
+        assertEquals(mRossi, bankAccount.getAccountHolder());
     }
 
     /**
@@ -37,7 +40,18 @@ class TestStrictBankAccount {
      */
     @Test
     public void testManagementFees() {
-        fail("To be implemented");
+        this.bankAccount.deposit(1, 100.00);
+        double ExpectedFees = 5.0 + 0.1;
+        double ExpectedBalance = this.bankAccount.getBalance() - ExpectedFees;
+        
+        double RealFees = this.bankAccount.getBalance();
+        this.bankAccount.chargeManagementFees(1);
+        double RealBalance = this.bankAccount.getBalance();
+        RealFees-=this.bankAccount.getBalance();
+
+        System.out.println("Expected fees: " + ExpectedFees);
+        System.out.println("Real fees: " + RealFees);
+        assertEquals(ExpectedBalance, RealBalance, 0.001);
     }
 
     /**
@@ -45,7 +59,12 @@ class TestStrictBankAccount {
      */
     @Test
     public void testNegativeWithdraw() {
-        fail("To be implemented");
+        try{
+            this.bankAccount.withdraw(1, -1);
+            fail("Il prelievo negativo doveva essere bloccato, ma è stato permesso!");
+        } catch(IllegalArgumentException a) {
+            System.out.println("Failed withdrawing negative amount"+a.getMessage());
+        }
     }
 
     /**
@@ -53,6 +72,11 @@ class TestStrictBankAccount {
      */
     @Test
     public void testWithdrawingTooMuch() {
-        fail("To be implemented");
+        try{
+            this.bankAccount.withdraw(1, this.bankAccount.getBalance()+1);
+            fail("Il prelievo negativo doveva essere bloccato, ma è stato permesso!");
+        } catch(IllegalArgumentException a) {
+            System.out.println("Failed withdrawing more money than balance"+a.getMessage());
+        }
     }
 }
